@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For My Princess ♡</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+:root{
+  --red:#d7193f; --red2:#ff365d; --grey:#b9bcc3; --dark:#111216;
+  --panel:#1b1d22; --light:#ececf0; --muted:#8d9098;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:"Space Grotesk",sans-serif;background:#101114;color:var(--light)}
+body{overflow-x:hidden}
+button,input{font:inherit}
+.screen{display:none;min-height:100vh;align-items:center;justify-content:center;padding:28px}
+.screen.active{display:flex}
+.wrap{width:min(920px,94vw);text-align:center}
+.kicker{font:12px "DM Mono",monospace;letter-spacing:4px;color:var(--muted);text-transform:uppercase}
+h1,h2,p{margin-top:0}
+h1{font-size:clamp(42px,9vw,92px);line-height:.9;margin:18px 0}
+h2{font-size:clamp(34px,6vw,64px);line-height:.95}
+.red{color:var(--red)}
+.muted{color:var(--muted)}
+.small{font-size:13px;color:var(--muted)}
+.btn{
+  border:1px solid #555963;background:#bfc2c8;color:#111216;
+  padding:15px 30px;border-radius:5px;font-weight:700;letter-spacing:1px;
+  cursor:pointer;transition:.2s;box-shadow:6px 6px 0 #08090b;
+}
+.btn:hover{transform:translate(-2px,-2px);background:#e0e1e4}
+.btn.redbtn{background:var(--red);color:white;border-color:var(--red);box-shadow:6px 6px 0 #5f0b1c}
+.btn.darkbtn{background:#202228;color:#eee;border-color:#444}
+.card{background:rgba(27,29,34,.96);border:1px solid #3a3d45;border-radius:12px;box-shadow:0 25px 70px #0008}
+.noise:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.045;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:4px 4px}
+
+/* password */
+#password{background:radial-gradient(circle at 50% 35%,#2b2d33 0,#121317 42%,#090a0c 100%)}
+.lock{font-size:58px;margin-bottom:8px}
+.passbox{width:min(430px,100%);margin:28px auto;padding:30px}
+.passbox input{width:100%;padding:15px 16px;background:#0e0f12;border:1px solid #4b4e56;color:white;border-radius:5px;text-align:center;letter-spacing:5px;font-size:20px;outline:none}
+.passbox input:focus{border-color:var(--red)}
+.hint{margin:12px 0 22px;color:#999da6;font:12px "DM Mono",monospace}
+.error{height:20px;color:#ff5573;font-size:13px}
+
+/* welcome */
+#welcome{background:linear-gradient(145deg,#15161a,#24262b)}
+.heart{font-size:70px;color:var(--red);filter:drop-shadow(0 0 22px #d7193f55);animation:pulse 1.7s infinite}
+@keyframes pulse{50%{transform:scale(1.08)}}
+
+/* quiz */
+#quiz{background:#101114}
+.quizbox{padding:30px;text-align:left}
+.quiztop{display:flex;justify-content:space-between;align-items:center;color:#8f929a;font:12px "DM Mono",monospace}
+.progress{height:5px;background:#30323a;margin:18px 0 35px;border-radius:9px;overflow:hidden}
+.progress span{display:block;height:100%;width:20%;background:var(--red);transition:.3s}
+.question{font-size:clamp(25px,4vw,42px);font-weight:700;margin-bottom:25px}
+.options{display:grid;gap:12px}
+.option{width:100%;padding:17px 18px;text-align:left;background:#bbbfc6;border:1px solid #d5d6da;color:#111318;border-radius:5px;cursor:pointer;font-weight:600;transition:.18s}
+.option:hover{background:#dedfe2}
+.option.selected{background:var(--red);color:white;border-color:var(--red)}
+.quizactions{display:flex;justify-content:flex-end;margin-top:25px}
+
+/* score */
+#score{background:radial-gradient(circle,#24262c,#0c0d0f 70%)}
+.scorecard{padding:48px 28px}
+.scorebig{font-size:clamp(90px,20vw,180px);font-weight:700;line-height:.8;margin:25px 0;color:var(--red)}
+.scoremsg{font-size:20px;margin-bottom:28px}
+
+/* crimes */
+#crimes{background:#111216}
+.casegrid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;margin:28px 0;text-align:left}
+.case{padding:23px;background:#1c1e23;border:1px solid #383b43;border-left:4px solid var(--red);border-radius:7px;cursor:pointer;min-height:145px;transition:.2s}
+.case:hover{transform:translateY(-3px);border-color:#666}
+.case-details{display:none;margin-top:14px;padding-top:13px;border-top:1px solid #3a3d45}
+.case.open .case-details{display:block}
+.case-details p{margin:5px 0;color:#c2c4ca;font-size:14px;line-height:1.55}
+.case.open{background:#24262c;border-color:#7b2638}
+.case .num{font:11px "DM Mono";color:var(--red)}
+.case h3{margin:8px 0;font-size:19px}
+.case p{color:#a7aab2;font-size:14px;line-height:1.5;margin:0}
+.verdict{display:none;padding:22px;border:1px solid #6a2535;background:#29141a;border-radius:8px;margin-bottom:22px}
+.verdict.show{display:block}
+
+/* letter */
+#letterScreen{background:#c5c7cb;color:#15161a}
+.letterWrap{width:min(900px,94vw);text-align:center}
+.letter{background:#eeeef0;color:#17181c;text-align:left;padding:clamp(38px,7vw,100px);border:2px solid #8d9097;box-shadow:22px 24px 0 #777a82;position:relative;min-height:78vh}
+.letter:before,.letter:after{content:"♥";position:absolute;color:var(--red);font-size:34px}
+.letter:before{top:25px;left:30px}.letter:after{bottom:25px;right:30px}
+.letterTop{text-align:center;font:12px "DM Mono",monospace;letter-spacing:5px;color:#777a82;margin-bottom:35px}
+.letter h2{text-align:center;color:var(--red);font-size:clamp(42px,8vw,88px);line-height:.9;margin:0 auto 55px}
+.letterBody{max-width:760px;margin:auto}
+.letter p{font-size:clamp(18px,2.4vw,24px);line-height:2;margin:0 0 28px}
+.sign{text-align:right;margin-top:55px!important;font-style:italic}
+.sign span{color:var(--red);font-size:1.12em}
+.letterbtn{text-align:center;margin-top:45px}
+
+/* ending */
+#end{background:#aeb1b7;color:#17181b;position:relative;overflow:hidden}
+.endbtn{font-size:22px;padding:20px 55px;background:var(--red);color:#fff;border:0;border-radius:5px;box-shadow:8px 8px 0 #650d20;cursor:pointer}
+.kiss{position:fixed;z-index:20;font-size:32px;pointer-events:none;animation:fly 2.8s ease-out forwards}
+@keyframes fly{
+  0%{transform:translate(0,0) scale(.5) rotate(0);opacity:0}
+  10%{opacity:1}
+  100%{transform:translate(var(--x),var(--y)) scale(1.35) rotate(var(--r));opacity:0}
+}
+.finalmsg{display:none}
+.finalmsg.show{display:block}
+.finalmsg h2{margin:20px 0 5px}
+.finalmsg .tiny{font:13px "DM Mono";color:#555}
+@media(max-width:650px){.casegrid{grid-template-columns:1fr}.screen{padding:18px}.quizbox{padding:20px}.letter{box-shadow:10px 12px 0 #777a82;min-height:90vh;padding:35px 25px}.letter h2{margin-bottom:38px}.letter p{line-height:1.75}}
+</style>
+</head>
+<body class="noise">
+
+<section id="password" class="screen active">
+  <div class="wrap">
+    <div class="lock">🔐</div>
+    <div class="kicker">classified / princess access</div>
+    <h1>ENTER<br><span class="red">PASSWORD.</span></h1>
+    <div class="passbox card">
+      <input id="passwordInput" type="password" inputmode="numeric" maxlength="8" placeholder="••••••••" aria-label="Password">
+      <div class="hint">HINT: YOUR BIRTHDAY 🎂</div>
+      <div class="error" id="passError"></div>
+      <button class="btn redbtn" onclick="unlock()">UNLOCK →</button>
+    </div>
+  </div>
+</section>
+
+<section id="welcome" class="screen">
+  <div class="wrap">
+    <div class="heart">♥</div>
+    <div class="kicker">access granted</div>
+    <h1>WELCOME,<br><span class="red">PRINCESS.</span></h1>
+    <p class="muted">Before you receive your surprise…<br>you have one tiny test to pass.</p>
+    <br>
+    <button class="btn" onclick="showScreen('quiz');renderQuestion()">CONTINUE →</button>
+  </div>
+</section>
+
+<section id="quiz" class="screen">
+  <div class="wrap">
+    <div class="card quizbox">
+      <div class="quiztop"><span>PRINCESS TEST</span><span id="qnum">01 / 05</span></div>
+      <div class="progress"><span id="bar"></span></div>
+      <div class="question" id="question"></div>
+      <div class="options" id="options"></div>
+      <div class="quizactions"><button class="btn darkbtn" id="nextBtn" onclick="nextQuestion()" disabled>NEXT →</button></div>
+    </div>
+  </div>
+</section>
+
+<section id="score" class="screen">
+  <div class="wrap">
+    <div class="card scorecard">
+      <div class="kicker">quiz complete</div>
+      <h2>YOUR PRINCESS<br><span class="red">SCORE</span></h2>
+      <div class="scorebig" id="scoreBig">0/5</div>
+      <div class="scoremsg" id="scoreMsg"></div>
+      <button class="btn redbtn" onclick="showScreen('crimes')">CONTINUE →</button>
+    </div>
+  </div>
+</section>
+
+<section id="crimes" class="screen">
+  <div class="wrap">
+    <div class="kicker">case file / 05</div>
+    <h2>PRINCESS<br><span class="red">CRIMES.</span></h2>
+    <p class="muted">Tap each case to reveal the evidence.</p>
+
+    <div class="casegrid">
+      <div class="case" onclick="toggleCase(this)">
+        <div class="num">CASE #001</div><h3>BEING TOO CUTE</h3>
+        <div class="case-details">
+          <p>You have repeatedly been caught being ridiculously cute.</p>
+          <p>The evidence is impossible to ignore.</p>
+          <p>Multiple incidents have been documented.</p>
+          <p>Attempting to deny the charges will not help your case.</p>
+        </div>
+      </div>
+
+      <div class="case" onclick="toggleCase(this)">
+        <div class="num">CASE #002</div><h3>STEALING MY ATTENTION</h3>
+        <div class="case-details">
+          <p>You somehow manage to steal my attention without even trying.</p>
+          <p>One minute I'm doing my own thing.</p>
+          <p>The next minute, I'm thinking about you again.</p>
+          <p>This offence has occurred far too many times.</p>
+        </div>
+      </div>
+
+      <div class="case" onclick="toggleCase(this)">
+        <div class="num">CASE #003</div><h3>MAKING ME MISS YOU</h3>
+        <div class="case-details">
+          <p>Leaving me alone for approximately five minutes is apparently illegal.</p>
+          <p>Somehow I end up missing you anyway.</p>
+          <p>The suspect has shown absolutely no remorse.</p>
+          <p>Repeat offences are expected.</p>
+        </div>
+      </div>
+
+      <div class="case" onclick="toggleCase(this)">
+        <div class="num">CASE #004</div><h3>PRINCESS BEHAVIOUR</h3>
+        <div class="case-details">
+          <p>The suspect has displayed undeniable princess behaviour.</p>
+          <p>Expectations include attention, affection and royal treatment.</p>
+          <p>The title has therefore been officially assigned.</p>
+          <p>There is no appeal process.</p>
+        </div>
+      </div>
+
+      <div class="case" onclick="toggleCase(this)">
+        <div class="num">CASE #005</div><h3>BEING MY FAVOURITE PERSON</h3>
+        <div class="case-details">
+          <p>This is, unfortunately, the most serious charge.</p>
+          <p>You became one of my favourite people without permission.</p>
+          <p>Now you're permanently stuck in my heart.</p>
+          <p>There is absolutely no way out of this one. ❤️</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="verdict" id="verdict"><strong>VERDICT: GUILTY ❤️</strong><br><span class="small">SENTENCE: STUCK WITH ME.</span></div>
+    <button class="btn redbtn" onclick="acceptSentence()">ACCEPT YOUR SENTENCE →</button>
+  </div>
+</section>
+
+<section id="letterScreen" class="screen">
+  <div class="letterWrap">
+    <div class="letter">
+      <div class="letterTop">A LETTER FOR MY PRINCESS</div>
+      <h2>♡ ONE LAST THING ♡</h2>
+      <div class="letterBody">
+        <p>My princess,</p>
+        <p>
+          Somewhere between all the jokes, the chaos, the random conversations and all
+          the little moments that only make sense to us, you became someone incredibly
+          special to me.
+        </p>
+        <p>
+          I don't think I say it enough, but I really do appreciate having you in my life.
+          You make ordinary days feel different just by being there, and somehow even the
+          most random moments become memories I want to keep.
+        </p>
+        <p>
+          I love the way you can make me laugh, the way you somehow manage to get my
+          attention, and all the tiny things about you that probably seem insignificant
+          but mean a lot to me.
+        </p>
+        <p>
+          And yes, I know this entire website is ridiculously dramatic. The password,
+          the quiz, the crimes, the royal treatment — all of it was made specifically
+          for you because you deserve your own ridiculous little corner of the internet.
+        </p>
+        <p>
+          So here's the official statement: you're my princess. You're loved, you're
+          appreciated, and you're stuck with me. There is no appeal process. ❤️
+        </p>
+        <p>
+          Thank you for being you. Thank you for the laughs, the memories, the little
+          things, and for simply being someone I care about so much.
+        </p>
+        <p>
+          Happy Girlfriend Day, princess. I hope you smiled at least once while going
+          through this entire stupid website. That was the point.
+        </p>
+        <p class="sign">With love,<br><span>your favourite person ❤️</span></p>
+      </div>
+    </div>
+    <div class="letterbtn"><button class="btn redbtn" onclick="showScreen('end')">CLOSE LETTER →</button></div>
+  </div>
+</section>
+
+<section id="end" class="screen">
+  <div class="wrap">
+    <div id="endStart">
+      <div class="kicker">final command</div>
+      <h1>READY TO<br><span class="red">LEAVE?</span></h1>
+      <p class="muted">Okay, you can leave now, princess.</p><br>
+      <button class="endbtn" onclick="kissExplosion()">♡ END ♡</button>
+    </div>
+    <div class="finalmsg" id="finalMsg">
+      <div style="font-size:70px">❤️</div>
+      <h2>YOU'RE LOVED.</h2>
+      <div class="tiny">— THE END —</div>
+      <div style="margin-top:12px">&lt;3</div>
+    </div>
+  </div>
+</section>
+
+<script>
+const questions = [
+  {q:"What was my first impression of you?", opts:["He seemed intimidating","He was cute","He was boring","He was annoying"], a:1},
+  {q:"When I'm upset, what do I usually want?", opts:["Food","Attention","Space","Sleep"], a:1},
+  {q:"What's my idea of a simple perfect date?", opts:["Shopping + dinner","Coffee + movie","Picnic + photos","Gaming + snacks"], a:1},
+  {q:"Which food am I most likely to choose?", opts:["Paneer","Alu","Pizza","Pasta"], a:0},
+  {q:"How many questions are in this Princess Test?", opts:["3","5","8","10"], a:1}
+];
+let current=0, score=0, chosen=null;
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function unlock(){
+  const val=document.getElementById('passwordInput').value;
+  if(val==="19052012"){
+    document.getElementById('passError').textContent="";
+    showScreen('welcome');
+  }else{
+    document.getElementById('passError').textContent="ACCESS DENIED. Try again, princess.";
+  }
+}
+document.getElementById('passwordInput').addEventListener('keydown',e=>{if(e.key==='Enter')unlock()});
+
+function renderQuestion(){
+  const q=questions[current]; chosen=null;
+  document.getElementById('qnum').textContent=String(current+1).padStart(2,'0')+" / 05";
+  document.getElementById('bar').style.width=((current+1)/5*100)+"%";
+  document.getElementById('question').textContent=q.q;
+  const box=document.getElementById('options'); box.innerHTML="";
+  q.opts.forEach((o,i)=>{
+    const b=document.createElement('button'); b.className='option'; b.textContent=o;
+    b.onclick=()=>selectOption(i,b); box.appendChild(b);
+  });
+  const nb=document.getElementById('nextBtn'); nb.disabled=true; nb.textContent=current===4?"FINISH →":"NEXT →";
+}
+function selectOption(i,b){
+  chosen=i;
+  document.querySelectorAll('.option').forEach(x=>x.classList.remove('selected'));
+  b.classList.add('selected');
+  document.getElementById('nextBtn').disabled=false;
+}
+function nextQuestion(){
+  if(chosen===null)return;
+  if(chosen===questions[current].a)score++;
+  if(current<questions.length-1){current++;renderQuestion()}
+  else{
+    document.getElementById('scoreBig').textContent=score+"/5";
+    const msgs=[
+      "Your princess privileges have been temporarily revoked. 💀",
+      "HOW DO YOU NOT KNOW ME 😭",
+      "We're gonna need to have a little conversation. 🩶",
+      "Not bad, princess. You survived. ❤️",
+      "PERFECT PRINCESS. Okayyy, you actually know me. 👑"
+    ];
+    document.getElementById('scoreMsg').textContent=msgs[score];
+    showScreen('score');
+  }
+}
+function toggleCase(card){
+  card.classList.toggle('open');
+}
+function acceptSentence(){
+  document.getElementById('verdict').classList.add('show');
+  setTimeout(()=>showScreen('letterScreen'),700);
+}
+function kissExplosion(){
+  const n=55;
+  for(let i=0;i<n;i++){
+    const k=document.createElement('div'); k.className='kiss';
+    k.textContent=Math.random()>.35?'💋':'♥';
+    k.style.left=(45+Math.random()*10)+"vw";
+    k.style.top=(45+Math.random()*10)+"vh";
+    k.style.setProperty('--x',(Math.random()*2-1)*window.innerWidth*0.9+"px");
+    k.style.setProperty('--y',(-Math.random()*window.innerHeight*0.9-80)+"px");
+    k.style.setProperty('--r',(Math.random()*720-360)+"deg");
+    k.style.animationDelay=(Math.random()*0.5)+"s";
+    document.body.appendChild(k);
+    setTimeout(()=>k.remove(),3600);
+  }
+  document.getElementById('endStart').style.display='none';
+  setTimeout(()=>document.getElementById('finalMsg').classList.add('show'),1100);
+}
+</script>
+</body>
+</html>
