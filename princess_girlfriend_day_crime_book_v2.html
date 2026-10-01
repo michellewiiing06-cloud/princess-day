@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Princess Criminal Archive</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Libre+Baskerville:wght@400;700&family=Playfair+Display:wght@700;800&display=swap');
+:root{--red:#d7193f;--ink:#181818;--paper:#eee9df;--grey:#77736d}
+*{box-sizing:border-box}body{margin:0;background:#101010;color:#eee;font-family:'DM Mono',monospace}
+.screen{display:none;min-height:100vh}.screen.active{display:flex}
+button{font:inherit;cursor:pointer}.red{color:var(--red)}
+/* common */
+.center{align-items:center;justify-content:center;padding:24px}.noise{position:fixed;inset:0;pointer-events:none;opacity:.06;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='x'%3E%3CfeTurbulence baseFrequency='.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23x)'/%3E%3C/svg%3E")}
+.btn{background:var(--red);color:#fff;border:0;padding:14px 22px;text-transform:uppercase;letter-spacing:2px;box-shadow:5px 5px #555}.btn:hover{transform:translate(2px,2px);box-shadow:2px 2px #555}
+.mono{font-size:11px;letter-spacing:3px;color:#999}
+.panel{background:#171717;border:1px solid #444;padding:36px;max-width:480px;width:100%}
+.panel h1{font:800 clamp(45px,10vw,82px)/.82 'Playfair Display';margin:15px 0 24px}
+input{width:100%;background:#090909;color:#fff;border:1px solid #555;padding:16px;margin:14px 0;outline:0}.error{height:22px;color:var(--red);font-size:11px}
+.welcome{text-align:center;max-width:900px}.welcome h1{font:800 clamp(55px,12vw,125px)/.82 'Playfair Display';margin:20px 0}.welcome p{color:#aaa;line-height:1.8}
+
+/* quiz */
+.quiz{width:min(760px,94%);margin:auto}.qtop{display:flex;justify-content:space-between;color:#888;font-size:11px;letter-spacing:2px}.quiz h2{font:700 clamp(32px,6vw,62px)/1.05 'Playfair Display';margin:28px 0}.opts{display:grid;gap:10px}.opt{padding:18px;text-align:left;background:#1a1a1a;border:1px solid #444;color:#eee}.opt:hover{border-color:var(--red)}.good{border-color:#38b878;background:#102119}.bad{border-color:var(--red);background:#2a1117}
+
+/* scoreboard */
+.score{text-align:center}.score .big{font:800 150px/.8 'Playfair Display';color:var(--red)}.score h2{font:700 48px 'Playfair Display'}
+
+/* NEW CRIME BOOK */
+.archive{min-height:100vh;width:100%;padding:34px 20px;display:flex;flex-direction:column;align-items:center}
+.archive-head{text-align:center;margin-bottom:22px}.archive-head h1{font:800 clamp(40px,8vw,82px)/.85 'Playfair Display';margin:8px}.archive-head p{color:#888}
+.bookstage{width:min(1100px,100%);height:min(680px,76vh);min-height:520px;perspective:1800px;position:relative}
+.book-cover{position:absolute;inset:0;background:#292929;border:12px solid #171717;box-shadow:20px 22px 0 #6d1328;display:flex;align-items:center;justify-content:center;z-index:4;transform-origin:left center;transition:1s cubic-bezier(.7,.1,.2,1);backface-visibility:hidden}
+.book-cover.open{transform:rotateY(-155deg);pointer-events:none}
+.cover-inner{width:78%;height:82%;border:2px solid #aaa;outline:1px solid #555;outline-offset:-12px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.cover-inner .seal{width:100px;height:100px;border:3px solid var(--red);border-radius:50%;display:grid;place-items:center;color:var(--red);font-size:12px;letter-spacing:1px;margin:20px}
+.cover-inner h2{font:800 clamp(35px,7vw,75px)/.85 'Playfair Display';margin:0}.cover-inner p{color:#aaa}
+.openbook{display:grid;grid-template-columns:1fr 1fr;height:100%;background:#d8d0c3;color:#171717;border:12px solid #171717;box-shadow:20px 22px 0 #6d1328}
+.sheet{position:relative;padding:40px clamp(22px,4vw,55px);overflow:hidden;background:linear-gradient(90deg,#eee9df,#d9d2c5)}
+.sheet.right{background:linear-gradient(90deg,#d9d2c5,#eee9df);border-left:1px solid #aaa}
+.sheet:after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 29px,rgba(30,30,30,.08) 30px)}
+.file-no{font-size:10px;letter-spacing:4px;color:#777;position:relative;z-index:1}
+.sheet h2{font:800 clamp(31px,5vw,58px)/.9 'Playfair Display';margin:20px 0;position:relative;z-index:1}
+.case-stamp{display:inline-block;color:#b50e2e;border:3px solid #b50e2e;padding:7px 12px;transform:rotate(-5deg);font-weight:bold;position:relative;z-index:1}
+.evidence{position:relative;z-index:1;margin-top:22px}.evidence p{font:14px/1.65 'Libre Baskerville',serif;margin:0 0 12px}
+.hand{font:700 22px 'Playfair Display';transform:rotate(-2deg);margin-top:22px;position:relative;z-index:1}
+.page-controls{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+.page-controls button{border:1px solid #555;background:#222;color:#fff;padding:11px 17px}
+.page-controls button:disabled{opacity:.35;cursor:not-allowed}
+.case-dots{display:flex;gap:7px;justify-content:center;margin-top:12px}.dot{width:9px;height:9px;border-radius:50%;background:#555}.dot.active{background:var(--red)}
+/* flip overlays */
+.page-turn{animation:turn .65s ease both}@keyframes turn{0%{transform:rotateY(0);opacity:1}45%{transform:rotateY(-8deg);opacity:.5}100%{transform:rotateY(0);opacity:1}}
+@media(max-width:760px){.bookstage{height:auto;min-height:0}.openbook{display:block;min-height:600px}.sheet.right{display:none}.sheet{min-height:600px}.book-cover{min-height:600px}.archive{padding:20px 10px}}
+/* letter */
+.letter{width:min(1050px,92%);margin:auto;padding:30px 0}.letter h1{text-align:center;font:800 clamp(50px,10vw,110px) 'Playfair Display'}.paper{background:#e8e1d6;color:#171717;padding:clamp(35px,7vw,90px);box-shadow:18px 18px var(--red);min-height:75vh}.paper h2{font:700 55px 'Playfair Display';margin:0 0 25px}.paper p{font:16px/2.05 Georgia,serif;max-width:850px}.end{text-align:center;padding:60px}.end button{background:none;border:0;color:#eee;font:800 clamp(45px,10vw,100px) 'Playfair Display'}
+/* final */
+.final{align-items:center;justify-content:center;text-align:center}.final h1{font:800 clamp(48px,11vw,125px) 'Playfair Display'}.final p{letter-spacing:5px;color:#888}
+.fly{position:fixed;z-index:99;font-size:30px;pointer-events:none;animation:fly 1.9s ease-out forwards}@keyframes fly{0%{left:50%;top:55%;opacity:0;transform:scale(.2)}15%{opacity:1}100%{left:calc(50% + var(--x));top:calc(55% + var(--y));opacity:0;transform:scale(1.4) rotate(var(--r))}}
+</style>
+</head>
+<body>
+<div class="noise"></div>
+
+<section id="s-pass" class="screen active center">
+<div class="panel">
+<div class="mono red">PRINCESS ARCHIVE // RESTRICTED</div>
+<h1>ENTER<br>THE FILE.</h1>
+<p style="color:#999">Hint: your birthday 🎂</p>
+<input id="pw" type="password" placeholder="PASSWORD">
+<div id="err" class="error"></div>
+<button class="btn" onclick="unlock()">ACCESS →</button>
+</div>
+</section>
+
+<section id="s-welcome" class="screen center">
+<div class="welcome">
+<div class="mono red">ACCESS GRANTED</div>
+<h1>WELCOME,<br><span class="red">PRINCESS.</span></h1>
+<p>One tiny test stands between you and your extremely suspicious criminal record.</p>
+<button class="btn" onclick="go('s-quiz')">CONTINUE →</button>
+</div>
+</section>
+
+<section id="s-quiz" class="screen center">
+<div class="quiz">
+<div class="qtop"><span>PRINCESS TEST</span><span id="qn">01 / 05</span></div>
+<h2 id="qt"></h2><div id="opts" class="opts"></div>
+<p id="fb" style="color:#999;min-height:24px"></p>
+<button id="qnext" class="btn" style="display:none" onclick="nextQ()">NEXT →</button>
+</div>
+</section>
+
+<section id="s-score" class="screen center">
+<div class="score">
+<div class="mono">CASE REVIEW COMPLETE</div><div class="big" id="sc"></div><h2 id="st"></h2>
+<p style="color:#999">The evidence archive is now unlocked.</p>
+<button class="btn" onclick="go('s-archive')">OPEN THE CRIME BOOK →</button>
+</div>
+</section>
+
+<section id="s-archive" class="screen">
+<div class="archive">
+<div class="archive-head">
+<div class="mono red">CONFIDENTIAL // EVIDENCE ROOM</div>
+<h1>THE CRIMINAL<br><span class="red">RECORD</span></h1>
+<p>Subject: My Princess &nbsp;•&nbsp; Five charges pending</p>
+</div>
+<div class="bookstage">
+<div id="cover" class="book-cover">
+<div class="cover-inner">
+<div class="mono red">OFFICIAL ARCHIVE</div>
+<div class="seal">TOP<br>SECRET<br>♡</div>
+<h2>THE<br>PRINCESS<br><span class="red">CASEBOOK</span></h2>
+<p>PROPERTY OF THE COURT OF ME</p>
+<button class="btn" onclick="openBook()">OPEN CASEBOOK →</button>
+</div></div>
+
+<div class="openbook">
+<div class="sheet" id="leftPage"></div>
+<div class="sheet right" id="rightPage"></div>
+</div>
+</div>
+<div class="page-controls">
+<button onclick="prevCase()" id="prev">← PREVIOUS</button>
+<button onclick="nextCase()" id="next">NEXT CASE →</button>
+</div>
+<div class="case-dots" id="dots"></div>
+</div>
+</section>
+
+<section id="s-letter" class="screen">
+<div class="letter">
+<div class="mono red" style="text-align:center">FINAL DOCUMENT // UNSEALED</div>
+<h1>THE <span class="red">BIG</span> LETTER.</h1>
+<div class="paper">
+<h2>My princess,</h2>
+<p>I know this entire website is ridiculously dramatic, but honestly, you deserve a ridiculously dramatic little corner of the internet.</p>
+<p>Thank you for all the ordinary moments that somehow become my favourite moments. The jokes, the random conversations, the chaos, the little things, and every time you make me smile without even trying.</p>
+<p>Apparently I couldn't just write “Happy Girlfriend Day,” so I built an entire criminal investigation around you instead.</p>
+<p>The official verdict is simple: you are loved, appreciated, and extremely important to me.</p>
+<p>So congratulations. Your title is permanent.</p>
+<p><b>My princess. 👑</b></p>
+<p>Happy Girlfriend Day. I hope this ridiculous little website made you smile.</p>
+<div style="font:700 25px 'Playfair Display';margin-top:45px">— With love, your favourite investigator ♡</div>
+</div>
+<div class="end"><button onclick="finish()">♡ END ♡</button></div>
+</div>
+</section>
+
+<section id="s-final" class="screen final">
+<div><h1><span class="red">❤️</span> YOU'RE LOVED.</h1><p>— THE END —</p><div style="font:40px Georgia">&lt;3</div></div>
+</section>
+
+<script>
+const PW="19052012";
+const questions=[
+["What was my first impression of you?",["He seemed intimidating","He was cute","He was boring","He was annoying"],1],
+["When I'm upset, what do I usually want?",["Food","Attention","Space","Sleep"],1],
+["What's my idea of a simple perfect date?",["Shopping + dinner","Coffee + movie","Picnic + photos","Gaming + snacks"],1],
+["Which food am I most likely to choose?",["Paneer","Alu","Pizza","Pasta"],0],
+["How many questions are in this Princess Test?",["3","5","8","10"],1]
+];
+let qi=0,score=0,locked=false;
+function go(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');scrollTo(0,0)}
+function unlock(){if(document.getElementById('pw').value===PW)go('s-welcome');else document.getElementById('err').textContent="Wrong password. Nice try. 😭"}
+document.getElementById('pw').addEventListener('keydown',e=>e.key==="Enter"&&unlock());
+function renderQ(){locked=false;document.getElementById('qn').textContent=String(qi+1).padStart(2,'0')+" / 05";document.getElementById('qt').textContent=questions[qi][0];document.getElementById('fb').textContent="";document.getElementById('qnext').style.display="none";let o=document.getElementById('opts');o.innerHTML="";questions[qi][1].forEach((x,i)=>{let b=document.createElement('button');b.className="opt";b.textContent=String.fromCharCode(65+i)+". "+x;b.onclick=()=>answer(i,b);o.appendChild(b)})}
+function answer(i,b){if(locked)return;locked=true;let key=questions[qi][2],all=[...document.querySelectorAll('.opt')];all.forEach(x=>x.disabled=true);if(i===key){score++;b.classList.add("good");fb.textContent="CORRECT. The court is impressed. 👑"}else{b.classList.add("bad");all[key].classList.add("good");fb.textContent="INCORRECT. Added to the evidence file. 😭"}qnext.style.display="inline-block"}
+function nextQ(){if(qi<4){qi++;renderQ()}else{go('s-score');sc.textContent=score+"/5";st.textContent=["Your princess privileges are suspended. 💀","HOW DO YOU NOT KNOW ME 😭","We need to talk. 🩶","Not bad, princess. ❤️","PERFECT PRINCESS. 👑"][Math.max(0,score-1)]}}
+renderQ();
+
+const cases=[
+["CASE 001","BEING TOO CUTE",["You have been caught being cute on multiple occasions.","The suspect appears to have no control over this behaviour.","Attempts to act normal have repeatedly failed.","The evidence is overwhelming.","Witnesses have reported unnecessary levels of adorableness.","The suspect has shown absolutely zero remorse.","This behaviour has caused serious damage to my ability to stay normal.","Therefore, the charge stands."]],
+["CASE 002","STEALING MY ATTENTION",["The suspect has repeatedly stolen my attention without permission.","Every notification somehow becomes suspiciously important.","Attempts to ignore the suspect have resulted in immediate failure.","The suspect appears to possess an illegal amount of charm.","Evidence shows that I somehow end up thinking about you anyway.","No reasonable explanation has been provided.","The court finds this distraction highly effective.","Therefore, the charge stands."]],
+["CASE 003","MAKING ME MISS YOU",["The suspect has been observed causing unnecessary levels of missing-you.","Distance, silence, and busy days have all failed to stop it.","Even random little things somehow remind me of you.","The suspect has apparently made themselves impossible to forget.","This has resulted in repeated thoughts of when I get to talk to you again.","Attempts to remain completely normal have been unsuccessful.","The emotional evidence is frankly embarrassing.","Therefore, the charge stands."]],
+["CASE 004","PRINCESS BEHAVIOUR",["The suspect has repeatedly displayed undeniable princess behaviour.","Complaints, dramatic reactions, and adorable demands have been documented.","The suspect somehow expects royal treatment and occasionally receives it.","The evidence suggests the title was not self-appointed without reason.","Attempts to deny princess status have been rejected by the court.","The suspect has also shown a suspicious talent for getting their way.","No further investigation is required.","Therefore, the charge stands."]],
+["CASE 005","BEING MY FAVOURITE PERSON",["The suspect has somehow become one of the most important people in my life.","This was not approved by the court, yet it happened anyway.","Their presence makes ordinary moments feel better.","Their jokes, messages, and little habits have become familiar evidence.","The suspect has earned an unreasonable amount of space in my thoughts.","Attempts to reduce their importance have completely failed.","At this point, the evidence is impossible to dispute.","Therefore, the charge stands."]]
+];
+let ci=0;
+function openBook(){cover.classList.add("open");setTimeout(()=>renderCase(),500)}
+function renderCase(){
+let c=cases[ci];
+leftPage.innerHTML=`<div class="file-no">${c[0]} / EVIDENCE FILE</div><h2>${c[1]}</h2><div class="case-stamp">CONFIRMED CHARGE</div><div class="hand">Subject: MY PRINCESS</div><div class="evidence"><p><b>CHARGE:</b> unauthorized princess behaviour.</p><p>Incident report follows on the facing page.</p></div>`;
+rightPage.innerHTML=`<div class="file-no">COURT EVIDENCE / ${ci+1} OF 5</div><h2 style="font-size:32px">WHY THIS CHARGE EXISTS</h2><div class="evidence">${c[2].map(x=>`<p>— ${x}</p>`).join("")}</div><div class="case-stamp" style="margin-top:10px">VERDICT: GUILTY.</div>`;
+prev.disabled=ci===0;next.textContent=ci===4?"FINAL VERDICT →":"NEXT CASE →";
+dots.innerHTML=cases.map((_,i)=>`<span class="dot ${i===ci?'active':''}"></span>`).join("");
+leftPage.classList.remove("page-turn");rightPage.classList.remove("page-turn");void leftPage.offsetWidth;leftPage.classList.add("page-turn");rightPage.classList.add("page-turn");
+}
+function nextCase(){if(ci<4){ci++;renderCase()}else{showVerdict()}}
+function prevCase(){if(ci>0){ci--;renderCase()}}
+function showVerdict(){leftPage.innerHTML=`<div class="file-no">FINAL COURT DOCUMENT</div><h2>ALL CASES<br><span class="red">REVIEWED.</span></h2><div class="evidence"><p>The court has reviewed every charge, every piece of evidence, and every suspicious act of princess behaviour.</p><p>The conclusion is unavoidable.</p><p><b>FINAL VERDICT:</b></p><h2 style="font-size:38px">GUILTY OF<br><span class="red">BEING MY PRINCESS.</span> 👑</h2></div>`;rightPage.innerHTML=`<div class="file-no">SENTENCING DOCUMENT</div><h2>ACCEPT<br>YOUR SENTENCE.</h2><div class="evidence"><p>Your sentence is simple:</p><p>Continue being exactly the person you are.</p><p>And, unfortunately, remain my princess.</p></div><button class="btn" onclick="go('s-letter')" style="position:relative;z-index:2">ACCEPT SENTENCE →</button>`;prev.disabled=true;next.disabled=true;dots.innerHTML=""}
+function finish(){for(let i=0;i<40;i++){let x=document.createElement("span");x.className="fly";x.textContent=Math.random()>.35?"💋":"♥";x.style.setProperty("--x",(Math.random()*1100-550)+"px");x.style.setProperty("--y",(Math.random()*900-450)+"px");x.style.setProperty("--r",(Math.random()*160-80)+"deg");document.body.appendChild(x);setTimeout(()=>x.remove(),1900)}setTimeout(()=>go('s-final'),850)}
+renderCase();
+</script>
+</body>
+</html>
